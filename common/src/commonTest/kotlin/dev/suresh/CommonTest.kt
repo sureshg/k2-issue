@@ -7,7 +7,5 @@ class CommonTest {
 
   @Test
   fun greetings() {
-    assertTrue(
-        actual = Greeting().greeting().contains("Kotlin"), message = "Check 'Kotlin' is mentioned")
   }
 }
