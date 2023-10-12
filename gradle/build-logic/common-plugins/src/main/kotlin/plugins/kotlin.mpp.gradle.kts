@@ -5,7 +5,6 @@ import common.*
 import java.util.jar.Attributes
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.jvm.JvmTargetValidationMode
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.*
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
@@ -22,9 +21,6 @@ plugins {
   dev.zacsweers.redacted
   com.bnorm.power.`kotlin-power-assert`
   id("plugins.kotlin.docs")
-  // org.gradle.kotlin.`kotlin-dsl`
-  // app.cash.molecule
-  // dev.mokkery
 }
 
 kotlin {
@@ -32,57 +28,35 @@ kotlin {
   withSourcesJar(publish = true)
 
   targets.all {
-    // Configure all compilations of all targets
     compilations.all {
       compileTaskProvider.configure { compilerOptions { configureKotlinCommon() } }
-      // compilerOptions.configure { configureKotlinCommon() }
     }
   }
 
   jvm {
     withJava()
-    // withSourcesJar(publish = false)
     compilations.all {
       compileJavaTaskProvider?.configure { configureJavac() }
       compileTaskProvider.configure { compilerOptions { configureKotlinJvm() } }
-      // compilerOptions.configure { configureKotlinJvm() }
     }
 
     // ./gradlew jvmRun
     mainRun { mainClass = libs.versions.app.mainclass.get() }
 
-    // val test by testRuns.existing
     testRuns.configureEach { executionTask.configure { configureKotlinTest() } }
   }
-
-  //  jvm("desktop") {
-  //    compilations.all {
-  //      compileJavaTaskProvider?.configure { configureJavac() }
-  //      compileTaskProvider.configure { compilerOptions { configureKotlinJvm() } }
-  //    }
-  //    testRuns.configureEach { executionTask.configure { configureKotlinTest() } }
-  //    // Attribute to distinguish Desktop target
-  //    attributes.attribute(mppTargetAttr, "desktop")
-  //  }
 
   js {
     useEsModules()
     binaries.executable()
-    // binaries.library()
     browser {
-      commonWebpackConfig {
-        // outputFileName = "app.js"
-        // sourceMaps = true
-        cssSupport { enabled = true }
-      }
+      commonWebpackConfig { cssSupport { enabled = true } }
 
       testTask {
         enabled = true
         testLogging { configureLogEvents() }
         useKarma { useChromeHeadless() }
       }
-
-      // distribution { outputDirectory = file("$projectDir/docs") }
     }
     compilations.configureEach { kotlinOptions { configureKotlinJs() } }
     testRuns.configureEach { executionTask.configure { configureTestReport() } }
@@ -144,21 +118,6 @@ kotlin {
       }
     }
 
-    // val jvmCommon by creating {
-    //   dependsOn(commonMain)
-    //   dependencies {
-    //     implementation(..)
-    //   }
-    // }
-    //
-
-    // val target = targets.first { it.platformType == KotlinPlatformType.common }
-    // val compilation = target.compilations["main"]
-    // // OR val compilation = targets["metadata"].compilations["main"]
-    // compilation.defaultSourceSet.kotlin.srcDir(buildConfig)
-    // // val newSourceSet = sourceSets.create("gen")
-    // // compilation.defaultSourceSet.dependsOn(newSourceSet)
-
     jvmMain {
       // dependsOn(jvmCommon)
       dependencies {
@@ -191,20 +150,11 @@ kotlin {
         api(libs.kotlinx.html)
         api(libs.ktor.client.js)
         api(kotlinw("browser"))
-        // implementation(npm("@js-joda/timezone", libs.versions.npm.jsjoda.tz.get()))
-        // kspDependency("CommonMainMetadata", project(":meta:ksp:processor"))
-        // kspDependency("Js", project(":meta:ksp:processor"))
       }
-
-      // kotlin.srcDir("src/main/kotlin")
-      // resources.srcDir("src/main/resources")
     }
 
     jsTest { kotlin {} }
   }
-
-  // kotlinDaemonJvmArgs = jvmArguments
-  // explicitApiWarning()
 }
 
 ksp {
@@ -242,8 +192,6 @@ tasks {
     val buildConfigExtn = extensions.create<BuildConfigExtension>("buildConfig")
     val buildConfig by register<BuildConfig>("buildConfig", buildConfigExtn)
     kotlin.sourceSets.commonMain { kotlin.srcDirs(buildConfig) }
-    // compileKotlinMetadata { dependsOn(buildConfig) }
-    // maybeRegister<Task>("prepareKotlinIdeaImport") { dependsOn(buildConfig) }
   }
 
   // configure jvm target for ksp
@@ -288,10 +236,6 @@ tasks {
   }
 }
 
-dependencies {
-  // add("kspJvm", project(":ksp-processor"))
-}
-
 // A workaround to initialize Node.js and Yarn extensions only once in a multi-module
 // project by setting extra properties on a root project from a subproject.
 // https://docs.gradle.org/current/userguide/kotlin_dsl.html#extra_properties
@@ -318,22 +262,4 @@ if (!nodeExtnConfigured.toBoolean()) {
       nodeExtnConfigured = "true"
     }
   }
-}
-
-fun Project.addKspDependencyForAllTargets(
-    dependencyNotation: Any,
-    configurationNameSuffix: String = ""
-) {
-  // val kotlin = extensions.getByType<KotlinMultiplatformExtension>()
-  kotlin.targets
-      .filter { target ->
-        // Don't add KSP for common target, only final platforms
-        target.platformType != KotlinPlatformType.common
-      }
-      .forEach { target ->
-        dependencies.add(
-            "ksp${target.targetName.replaceFirstChar { it.uppercaseChar() }}$configurationNameSuffix",
-            dependencyNotation,
-        )
-      }
 }
