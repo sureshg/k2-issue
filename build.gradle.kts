@@ -1,7 +1,6 @@
 plugins {
   plugins.common
   plugins.misc
-  // kotlin("multiplatform") apply false
 }
 
-description = "Kotlin Multiplatform Playground!"
+description = "Kotlin K2 issue"
