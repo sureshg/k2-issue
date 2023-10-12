@@ -1,0 +1,178 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+  <title>kotlin-mpp-playground Coverage Report > PlatformKt</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/idea.min.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.min.js"></script>
+  <script type="text/javascript" src="../../js/highlightjs-line-numbers.min.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope: kotlin-mpp-playground<span class="separator">|</span>    <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">dev.suresh</a>
+</div>
+
+<h1>Coverage Summary for Class: PlatformKt (dev.suresh)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Branch, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+<th class="coverageStat 
+">
+  Instruction, %
+</th>
+</tr>
+<tr>
+  <td class="name">PlatformKt</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+    <td class="coverageStat"/>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (4/4)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<code class="sourceCode" id="sourceCode">&nbsp;package dev.suresh
+&nbsp;
+&nbsp;import java.time.Instant
+&nbsp;import java.time.ZoneId
+&nbsp;import java.time.format.DateTimeFormatter
+&nbsp;import java.util.*
+&nbsp;import java.util.concurrent.Executors
+&nbsp;import kotlinx.coroutines.asCoroutineDispatcher
+&nbsp;import org.slf4j.LoggerFactory
+&nbsp;
+<b class="fc">&nbsp;actual val platform: Platform = JvmPlatform</b>
+&nbsp;
+&nbsp;object JvmPlatform : Platform {
+&nbsp;
+&nbsp;  private val log = LoggerFactory.getLogger(this::class.java)
+&nbsp;
+&nbsp;  override val name: String = &quot;JVM&quot;
+&nbsp;
+&nbsp;  override fun env(key: String, def: String?): String? = System.getenv(key) ?: def
+&nbsp;
+&nbsp;  override fun sysProp(key: String, def: String?): String? = System.getProperty(key, def)
+&nbsp;
+&nbsp;  override val tzShortId: String
+&nbsp;    get() {
+&nbsp;      // ZoneId.systemDefault().getDisplayName(TextStyle.SHORT_STANDALONE, Locale.ENGLISH)
+&nbsp;      return DateTimeFormatter.ofPattern(&quot;zzz&quot;)
+&nbsp;          .withLocale(Locale.ENGLISH)
+&nbsp;          .withZone(ZoneId.systemDefault())
+&nbsp;          .format(Instant.now())
+&nbsp;    }
+&nbsp;  /** A coroutine dispatcher that executes tasks on Virtual Threads. */
+&nbsp;  override val vtDispatcher by lazy {
+&nbsp;    log.info(&quot;Creating CoroutineDispatcher based on Java VirtualThreadPerTaskExecutor...&quot;)
+&nbsp;    Executors.newVirtualThreadPerTaskExecutor().asCoroutineDispatcher()
+&nbsp;  }
+&nbsp;
+&nbsp;  override val appInfo: Map&lt;String, String&gt;
+&nbsp;    get() =
+&nbsp;        super.appInfo +
+&nbsp;            mapOf(
+&nbsp;                &quot;uptime&quot; to
+&nbsp;                    run {
+&nbsp;                      val processEpochSec =
+&nbsp;                          ProcessHandle.current().info().startInstant().get().epochSecond
+&nbsp;                      epochSecToString(processEpochSec)
+&nbsp;                    })
+&nbsp;
+&nbsp;  override val osInfo: Map&lt;String, String?&gt;
+&nbsp;    get() =
+&nbsp;        super.osInfo +
+&nbsp;            mapOf(
+&nbsp;                &quot;name&quot; to sysProp(&quot;os.name&quot;),
+&nbsp;                &quot;version&quot; to sysProp(&quot;os.version&quot;),
+&nbsp;                &quot;arch&quot; to sysProp(&quot;os.arch&quot;),
+&nbsp;                &quot;user&quot; to sysProp(&quot;user.name&quot;),
+&nbsp;            )
+&nbsp;}
+</code>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+      hljs.highlightAll()
+      hljs.initLineNumbersOnLoad();
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-10-12 17:46</div>
+</div>
+</body>
+</html>
