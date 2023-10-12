@@ -12,6 +12,6 @@
   $ git clone https://github.com/sureshg/k2-issue
   $ cd k2-issue
   $ ./gradlew build
-  # now change some file and commit it to trigger the build again
+  # now change some file, commit and trigger the build again
   $ ./gradlew build 
   ```
